@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contexto — Privacy Policy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0f0f14;
+      color: #c8c8d8;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #e8e8f0;
+      margin-bottom: 8px;
+    }
+    .updated {
+      color: #8888a0;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #e8e8f0;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+    p, li {
+      font-size: 15px;
+      color: #a8a8b8;
+      margin-bottom: 12px;
+    }
+    ul {
+      padding-left: 24px;
+      margin-bottom: 16px;
+    }
+    li { margin-bottom: 6px; }
+    a { color: #7c5cfc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #f97316, #dc2626);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f97316, #eab308);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">i</div>
+      <span class="logo-text">Contexto</span>
+    </div>
+
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: February 14, 2025</p>
+
+    <h2>Overview</h2>
+    <p>Contexto ("the Extension") is a browser extension that uses AI to decode and explain webpage content. We are committed to protecting your privacy. This policy explains what data the Extension accesses and how it is handled.</p>
+
+    <h2>Data Collection</h2>
+    <p><strong>We do not collect any personal data.</strong> Specifically:</p>
+    <ul>
+      <li>We do not collect your name, email, or any personal identifiers</li>
+      <li>We do not use analytics or tracking tools</li>
+      <li>We do not operate any servers that receive your data</li>
+      <li>We do not create user accounts</li>
+      <li>We do not use cookies or similar tracking technologies</li>
+    </ul>
+
+    <h2>Data Storage</h2>
+    <p>The Extension stores the following data <strong>locally in your browser only</strong>:</p>
+    <ul>
+      <li><strong>Settings:</strong> Your chosen AI provider, API key, model preference, and language setting. Stored in Chrome sync storage.</li>
+      <li><strong>Usage counter:</strong> A daily count of analyses performed. Stored in Chrome local storage.</li>
+      <li><strong>History:</strong> Titles, URLs, and summaries of your past analyses (up to 50 entries). Stored in Chrome local storage.</li>
+    </ul>
+    <p>All locally stored data can be cleared by removing the extension or clearing extension data in your browser settings.</p>
+
+    <h2>API Key Handling</h2>
+    <p>Your API key (OpenAI or Anthropic) is stored locally in your browser's synced storage. It is only used to authenticate requests directly to your chosen AI provider. We never transmit your API key to any third-party server.</p>
+
+    <h2>Data Transmission</h2>
+    <p>When you click "Explain This Page," the Extension sends the following data <strong>directly to your chosen AI provider</strong> (OpenAI or Anthropic):</p>
+    <ul>
+      <li>The text content of the current webpage</li>
+      <li>The page title</li>
+      <li>Your API key (for authentication)</li>
+    </ul>
+    <p>This data is sent directly from your browser to the AI provider's API. It does not pass through any servers operated by us. Please refer to your AI provider's privacy policy for how they handle this data:</p>
+    <ul>
+      <li><a href="https://openai.com/privacy" target="_blank">OpenAI Privacy Policy</a></li>
+      <li><a href="https://www.anthropic.com/privacy" target="_blank">Anthropic Privacy Policy</a></li>
+    </ul>
+
+    <h2>Permissions</h2>
+    <p>The Extension requests the following browser permissions:</p>
+    <ul>
+      <li><strong>activeTab:</strong> To read the content of the page you are currently viewing when you click the extension icon</li>
+      <li><strong>storage:</strong> To save your settings and analysis history locally</li>
+      <li><strong>scripting:</strong> To inject the content extraction script into the active tab</li>
+    </ul>
+
+    <h2>Third-Party Services</h2>
+    <p>The Extension communicates only with:</p>
+    <ul>
+      <li><strong>OpenAI API</strong> (api.openai.com) — if you select OpenAI as your provider</li>
+      <li><strong>Anthropic API</strong> (api.anthropic.com) — if you select Claude as your provider</li>
+    </ul>
+    <p>No other third-party services are used.</p>
+
+    <h2>Children's Privacy</h2>
+    <p>The Extension is not directed at children under 13 and does not knowingly collect data from children.</p>
+
+    <h2>Changes to This Policy</h2>
+    <p>We may update this privacy policy from time to time. Any changes will be reflected on this page with an updated date.</p>
+
+    <h2>Contact</h2>
+    <p>If you have questions about this privacy policy, please open an issue on our GitHub repository or contact us through the Chrome Web Store listing.</p>
+  </div>
+</body>
+</html>
