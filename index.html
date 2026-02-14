@@ -371,7 +371,7 @@
             <li>Analysis history</li>
             <li>Support the developer</li>
           </ul>
-          <button class="btn-card btn-pro" onclick="handleUpgrade()">Upgrade to Pro</button>
+          <button class="btn-card btn-pro" id="pro-btn" onclick="handleUpgrade()">Upgrade to Pro — $1/mo</button>
         </div>
       </div>
     </div>
@@ -406,10 +406,12 @@
         buttons[0].classList.add('active');
         document.getElementById('pro-price').innerHTML = '<span class="currency">$</span>1 <span class="period">/mo</span>';
         document.getElementById('pro-note').textContent = 'Billed monthly';
+        document.getElementById('pro-btn').textContent = 'Upgrade to Pro — $1/mo';
       } else {
         buttons[1].classList.add('active');
         document.getElementById('pro-price').innerHTML = '<span class="currency">$</span>5 <span class="period">/yr</span>';
         document.getElementById('pro-note').textContent = '$0.42/mo — billed annually';
+        document.getElementById('pro-btn').textContent = 'Upgrade to Pro — $5/yr';
       }
     }
 
