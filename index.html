@@ -337,7 +337,7 @@
       <div class="toggle-wrap">
         <div class="toggle">
           <button class="active" onclick="setPlan('monthly')">Monthly</button>
-          <button onclick="setPlan('yearly')">Yearly <span class="save-badge">Save 17%</span></button>
+          <button onclick="setPlan('yearly')">Yearly <span class="save-badge">Save 58%</span></button>
         </div>
       </div>
 
@@ -362,7 +362,7 @@
         <div class="price-card featured">
           <h3>Pro</h3>
           <p class="desc">Unlimited AI-powered analysis</p>
-          <div class="price" id="pro-price"><span class="currency">$</span>0.50 <span class="period">/mo</span></div>
+          <div class="price" id="pro-price"><span class="currency">$</span>1 <span class="period">/mo</span></div>
           <p class="price-yearly-note" id="pro-note">Billed monthly</p>
           <ul class="features-list">
             <li>Unlimited analyses</li>
@@ -404,7 +404,7 @@
       buttons.forEach(b => b.classList.remove('active'));
       if (plan === 'monthly') {
         buttons[0].classList.add('active');
-        document.getElementById('pro-price').innerHTML = '<span class="currency">$</span>0.50 <span class="period">/mo</span>';
+        document.getElementById('pro-price').innerHTML = '<span class="currency">$</span>1 <span class="period">/mo</span>';
         document.getElementById('pro-note').textContent = 'Billed monthly';
       } else {
         buttons[1].classList.add('active');
