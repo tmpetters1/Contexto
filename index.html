@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contexto — Decode What Anything Really Means</title>
+  <meta name="description" content="AI-powered Chrome extension that decodes jargon, gives instant TL;DRs, and helps you think critically about any webpage.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0b;
+      --surface: #131316;
+      --surface-hover: #1a1a1f;
+      --border: #2a2a30;
+      --text: #e8e8ed;
+      --text-muted: #8b8b96;
+      --accent: #ff6b35;
+      --accent-glow: rgba(255, 107, 53, 0.15);
+      --purple: #a855f7;
+      --green: #22c55e;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      background: rgba(10, 10, 11, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-size: 1.25rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), #ff8f65);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn-nav {
+      background: var(--accent); color: #fff; padding: 0.5rem 1.25rem;
+      border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .btn-nav:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    /* Hero */
+    .hero {
+      padding: 10rem 2rem 6rem;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-block; padding: 0.4rem 1rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 100px; font-size: 0.8rem; color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .badge span { color: var(--accent); font-weight: 600; }
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800; line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.2rem; color: var(--text-muted);
+      max-width: 560px; margin: 0 auto 2.5rem;
+    }
+    .hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #e85d2a);
+      color: #fff; padding: 0.85rem 2rem; border-radius: 12px;
+      font-weight: 700; font-size: 1rem; text-decoration: none;
+      transition: all 0.3s; border: none; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(255, 107, 53, 0.4); }
+    .btn-secondary {
+      background: var(--surface); color: var(--text); padding: 0.85rem 2rem;
+      border-radius: 12px; font-weight: 600; font-size: 1rem;
+      text-decoration: none; border: 1px solid var(--border); transition: all 0.3s;
+    }
+    .btn-secondary:hover { background: var(--surface-hover); border-color: var(--text-muted); }
+
+    /* Modes Section */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      text-transform: uppercase; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.75rem;
+    }
+    h2 { font-size: 2.25rem; font-weight: 800; margin-bottom: 1rem; }
+    .section-sub { color: var(--text-muted); font-size: 1.1rem; max-width: 520px; margin-bottom: 3rem; }
+
+    .modes-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .mode-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      transition: all 0.3s;
+    }
+    .mode-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .mode-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.25rem;
+    }
+    .mode-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .mode-card p { color: var(--text-muted); font-size: 0.95rem; }
+    .decode .mode-icon { background: rgba(255, 107, 53, 0.15); }
+    .tldr .mode-icon { background: rgba(168, 85, 247, 0.15); }
+    .skeptic .mode-icon { background: rgba(34, 197, 94, 0.15); }
+
+    /* How it works */
+    .steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem; margin-top: 3rem;
+    }
+    .step {
+      text-align: center; padding: 1.5rem;
+    }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1rem; margin: 0 auto 1rem;
+    }
+    .step h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .step p { color: var(--text-muted); font-size: 0.9rem; }
+
+    /* Pricing */
+    .pricing-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .pricing-section h2 { text-align: center; }
+    .pricing-section .section-label { text-align: center; }
+    .pricing-section .section-sub { text-align: center; margin-left: auto; margin-right: auto; }
+
+    .toggle-wrap {
+      display: flex; justify-content: center; margin-bottom: 3rem;
+    }
+    .toggle {
+      display: flex; background: var(--bg); border-radius: 10px;
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .toggle button {
+      padding: 0.6rem 1.5rem; border: none; background: none;
+      color: var(--text-muted); font-weight: 600; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .toggle button.active {
+      background: var(--accent); color: #fff;
+    }
+    .save-badge {
+      background: var(--green); color: #000; font-size: 0.7rem;
+      padding: 0.15rem 0.5rem; border-radius: 100px; font-weight: 700;
+      margin-left: 0.4rem; vertical-align: middle;
+    }
+
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem; max-width: 750px; margin: 0 auto;
+    }
+    .price-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2.5rem; position: relative;
+    }
+    .price-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 40px rgba(255, 107, 53, 0.1);
+    }
+    .price-card.featured::before {
+      content: 'Most Popular';
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--accent), #e85d2a);
+      color: #fff; padding: 0.25rem 1rem; border-radius: 100px;
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .price-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .price-card .desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .price {
+      font-size: 3rem; font-weight: 800; margin-bottom: 0.25rem;
+    }
+    .price .currency { font-size: 1.5rem; vertical-align: top; }
+    .price .period { font-size: 1rem; font-weight: 500; color: var(--text-muted); }
+    .price-yearly-note { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .features-list { list-style: none; margin-bottom: 2rem; }
+    .features-list li {
+      padding: 0.4rem 0; font-size: 0.9rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .features-list li::before { content: '✓'; color: var(--green); font-weight: 700; }
+    .features-list li.disabled { opacity: 0.4; }
+    .features-list li.disabled::before { content: '—'; color: var(--text-muted); }
+    .btn-card {
+      display: block; width: 100%; padding: 0.85rem;
+      border-radius: 10px; font-weight: 700; font-size: 1rem;
+      text-align: center; text-decoration: none; transition: all 0.3s;
+      border: none; cursor: pointer; font-family: inherit;
+    }
+    .btn-free { background: var(--surface-hover); color: var(--text); border: 1px solid var(--border); }
+    .btn-free:hover { border-color: var(--text-muted); }
+    .btn-pro {
+      background: linear-gradient(135deg, var(--accent), #e85d2a); color: #fff;
+      box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+    }
+    .btn-pro:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(255, 107, 53, 0.4); }
+
+    /* Footer */
+    footer {
+      padding: 3rem 2rem; text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    footer p { color: var(--text-muted); font-size: 0.85rem; }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 1rem; }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .hero { padding: 8rem 1.5rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-inner">
+      <div class="logo">Contexto</div>
+      <div class="nav-links">
+        <a href="#modes">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#install" class="btn-nav">Install Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="badge"><span>New</span> — AI-powered page analysis for Chrome</div>
+    <h1>Decode what anything<br><span class="gradient">really means</span></h1>
+    <p>Highlight text, right-click, and instantly decode jargon, get a TL;DR, or think critically — powered by AI.</p>
+    <div class="hero-buttons">
+      <a href="#install" class="btn-primary">Add to Chrome — Free</a>
+      <a href="#pricing" class="btn-secondary">View Pricing</a>
+    </div>
+  </section>
+
+  <!-- Modes -->
+  <section id="modes">
+    <div class="container">
+      <div class="section-label">Three analysis modes</div>
+      <h2>Every angle covered</h2>
+      <p class="section-sub">Whether you need clarity, speed, or critical thinking — Contexto has you covered.</p>
+
+      <div class="modes-grid">
+        <div class="mode-card decode">
+          <div class="mode-icon">🔍</div>
+          <h3>Decode Mode</h3>
+          <p>Breaks down complex jargon, legal speak, and technical terms into plain language anyone can understand.</p>
+        </div>
+        <div class="mode-card tldr">
+          <div class="mode-icon">⚡</div>
+          <h3>TL;DR Mode</h3>
+          <p>Cuts through the noise and gives you the key takeaways in seconds. Perfect for long articles and docs.</p>
+        </div>
+        <div class="mode-card skeptic">
+          <div class="mode-icon">🧠</div>
+          <h3>Skeptic Mode</h3>
+          <p>Identifies bias, logical fallacies, and manipulation tactics. Think critically about what you read.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how" style="background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="container" style="text-align: center;">
+      <div class="section-label">Simple as 1-2-3</div>
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Install the extension</h3>
+          <p>Add Contexto to Chrome in one click. Free to start.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Browse any page</h3>
+          <p>Visit any article, document, or webpage you want to analyze.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Click &amp; decode</h3>
+          <p>Open the popup, pick your mode, and get instant AI analysis.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="pricing-section">
+    <div class="container">
+      <div class="section-label">Pricing</div>
+      <h2>Start free, go Pro when ready</h2>
+      <p class="section-sub">5 free analyses per day. Upgrade for unlimited access.</p>
+
+      <div class="toggle-wrap">
+        <div class="toggle">
+          <button class="active" onclick="setPlan('monthly')">Monthly</button>
+          <button onclick="setPlan('yearly')">Yearly <span class="save-badge">Save 17%</span></button>
+        </div>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Free -->
+        <div class="price-card">
+          <h3>Free</h3>
+          <p class="desc">Get started — no credit card needed</p>
+          <div class="price"><span class="currency">$</span>0 <span class="period">/mo</span></div>
+          <p class="price-yearly-note">&nbsp;</p>
+          <ul class="features-list">
+            <li>5 analyses per day</li>
+            <li>All 3 modes (Decode, TL;DR, Skeptic)</li>
+            <li>Works on any webpage</li>
+            <li class="disabled">Unlimited analyses</li>
+            <li class="disabled">Priority support</li>
+          </ul>
+          <a href="#install" class="btn-card btn-free">Install Free</a>
+        </div>
+
+        <!-- Pro -->
+        <div class="price-card featured">
+          <h3>Pro</h3>
+          <p class="desc">Unlimited AI-powered analysis</p>
+          <div class="price" id="pro-price"><span class="currency">$</span>0.50 <span class="period">/mo</span></div>
+          <p class="price-yearly-note" id="pro-note">Billed monthly</p>
+          <ul class="features-list">
+            <li>Unlimited analyses</li>
+            <li>All 3 modes (Decode, TL;DR, Skeptic)</li>
+            <li>Works on any webpage</li>
+            <li>Priority support</li>
+            <li>Early access to new features</li>
+          </ul>
+          <button class="btn-card btn-pro" onclick="handleUpgrade()">Upgrade to Pro</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="text-align: center; padding: 6rem 2rem;">
+    <div class="container">
+      <h2>Ready to decode the web?</h2>
+      <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 1.1rem;">Join thousands who think critically about what they read.</p>
+      <a href="#install" class="btn-primary" id="install">Add to Chrome — It's Free</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="mailto:support@contexto.app">Contact</a>
+    </div>
+    <p>&copy; 2025 Contexto. All rights reserved.</p>
+  </footer>
+
+  <script>
+    let currentPlan = 'monthly';
+
+    function setPlan(plan) {
+      currentPlan = plan;
+      const buttons = document.querySelectorAll('.toggle button');
+      buttons.forEach(b => b.classList.remove('active'));
+      if (plan === 'monthly') {
+        buttons[0].classList.add('active');
+        document.getElementById('pro-price').innerHTML = '<span class="currency">$</span>0.50 <span class="period">/mo</span>';
+        document.getElementById('pro-note').textContent = 'Billed monthly';
+      } else {
+        buttons[1].classList.add('active');
+        document.getElementById('pro-price').innerHTML = '<span class="currency">$</span>5 <span class="period">/yr</span>';
+        document.getElementById('pro-note').textContent = '$0.42/mo — billed annually';
+      }
+    }
+
+    function handleUpgrade() {
+      // This would be triggered from the extension's popup.
+      // On the landing page, redirect to Chrome Web Store install
+      alert('To upgrade to Pro:\\n\\n1. Install the Contexto extension\\n2. Create an account in the popup\\n3. Click "Upgrade to Pro"\\n\\nThe upgrade happens inside the extension!');
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  </script>
+
+</body>
+</html>
